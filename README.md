@@ -2,7 +2,7 @@
 ### A Transdisciplinary Pharmacogenomics Informatics Platform
 
 [![Azure](https://img.shields.io/badge/Azure-Cosmos%20DB-0078D4)](https://azure.microsoft.com)
-[![C#](https://img.shields.io/badge/Language-C%23-.NET-512BD4)](https://dotnet.microsoft.com)
+[![C#](https://img.shields.io/badge/Language-C%23%20.NET-512BD4)](https://dotnet.microsoft.com)
 [![Epic](https://img.shields.io/badge/Epic-Willow%20Analyst-E31837)](https://www.epic.com)
 [![CPIC](https://img.shields.io/badge/Guidelines-CPIC%20Level%20A-2E7D32)](https://cpicpgx.org)
 
