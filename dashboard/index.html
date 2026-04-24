@@ -1,0 +1,680 @@
+ <!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>From the Big Bang to the Bedside</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    background: #0f1117;
+    color: #e2e8f0;
+    min-height: 100vh;
+  }
+
+  header {
+    background: linear-gradient(135deg, #1B3A5C 0%, #0f2744 100%);
+    padding: 2.5rem 2rem;
+    text-align: center;
+    border-bottom: 3px solid #2E75B6;
+  }
+
+  header h1 {
+    font-size: 2.2rem;
+    font-weight: 700;
+    color: #ffffff;
+    letter-spacing: 0.05em;
+    margin-bottom: 0.5rem;
+  }
+
+  header p {
+    color: #BDD7EE;
+    font-size: 1rem;
+    max-width: 700px;
+    margin: 0 auto;
+  }
+
+  .badges {
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+    margin-top: 1rem;
+    flex-wrap: wrap;
+  }
+
+  .badge {
+    padding: 4px 12px;
+    border-radius: 20px;
+    font-size: 0.75rem;
+    font-weight: 600;
+  }
+
+  .badge-blue { background: #1e3a5f; color: #BDD7EE; border: 1px solid #2E75B6; }
+  .badge-green { background: #1a3a2a; color: #86efac; border: 1px solid #166534; }
+  .badge-red { background: #3a1a1a; color: #fca5a5; border: 1px solid #991B1B; }
+  .badge-purple { background: #2a1a3a; color: #c4b5fd; border: 1px solid #6d28d9; }
+
+  nav {
+    display: flex;
+    justify-content: center;
+    gap: 0;
+    background: #1a1f2e;
+    border-bottom: 1px solid #2d3748;
+  }
+
+  nav button {
+    padding: 1rem 2rem;
+    background: none;
+    border: none;
+    color: #94a3b8;
+    font-size: 0.9rem;
+    cursor: pointer;
+    border-bottom: 3px solid transparent;
+    transition: all 0.2s;
+  }
+
+  nav button:hover { color: #e2e8f0; background: #2d3748; }
+  nav button.active { color: #BDD7EE; border-bottom-color: #2E75B6; }
+
+  .panel { display: none; padding: 2rem; max-width: 1100px; margin: 0 auto; }
+  .panel.active { display: block; }
+
+  .section-title {
+    font-size: 1.4rem;
+    font-weight: 600;
+    color: #BDD7EE;
+    margin-bottom: 1.5rem;
+    padding-bottom: 0.5rem;
+    border-bottom: 1px solid #2d3748;
+  }
+
+  /* CHAIN VISUALIZATION */
+  .chain {
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+    align-items: center;
+  }
+
+  .layer-card {
+    width: 100%;
+    max-width: 700px;
+    border-radius: 12px;
+    padding: 1.25rem 1.5rem;
+    cursor: pointer;
+    transition: transform 0.2s, opacity 0.2s;
+    border: 1px solid transparent;
+  }
+
+  .layer-card:hover { transform: translateX(6px); }
+
+  .layer-card.l1 { background: #26215C; border-color: #534AB7; }
+  .layer-card.l2 { background: #412402; border-color: #854F0B; }
+  .layer-card.l3 { background: #173404; border-color: #3B6D11; }
+  .layer-card.l4 { background: #085041; border-color: #0F6E56; }
+  .layer-card.l5 { background: #0C447C; border-color: #185FA5; }
+
+  .layer-num {
+    font-size: 0.7rem;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    opacity: 0.7;
+    margin-bottom: 4px;
+  }
+
+  .layer-title {
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: #ffffff;
+    margin-bottom: 4px;
+  }
+
+  .layer-sub { font-size: 0.85rem; opacity: 0.75; }
+
+  .layer-data {
+    display: none;
+    margin-top: 1rem;
+    padding-top: 1rem;
+    border-top: 1px solid rgba(255,255,255,0.15);
+  }
+
+  .layer-data.open { display: block; }
+
+  .data-item {
+    background: rgba(0,0,0,0.3);
+    border-radius: 8px;
+    padding: 0.75rem 1rem;
+    margin-bottom: 0.5rem;
+    font-size: 0.85rem;
+  }
+
+  .data-item strong { color: #BDD7EE; display: block; margin-bottom: 2px; }
+
+  .arrow {
+    width: 2px;
+    height: 32px;
+    background: linear-gradient(to bottom, #2E75B6, #1B3A5C);
+    margin: 0 auto;
+    position: relative;
+  }
+
+  .arrow::after {
+    content: '▼';
+    position: absolute;
+    bottom: -10px;
+    left: 50%;
+    transform: translateX(-50%);
+    color: #2E75B6;
+    font-size: 12px;
+  }
+
+  .loading { text-align: center; color: #64748b; padding: 2rem; font-size: 0.9rem; }
+
+  /* PGX LOOKUP */
+  .lookup-form {
+    background: #1a1f2e;
+    border-radius: 12px;
+    padding: 1.5rem;
+    margin-bottom: 2rem;
+    border: 1px solid #2d3748;
+  }
+
+  .form-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr auto;
+    gap: 1rem;
+    align-items: end;
+  }
+
+  .form-group label {
+    display: block;
+    font-size: 0.8rem;
+    color: #94a3b8;
+    margin-bottom: 6px;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+  }
+
+  .form-group select {
+    width: 100%;
+    padding: 10px 14px;
+    background: #0f1117;
+    border: 1px solid #2d3748;
+    border-radius: 8px;
+    color: #e2e8f0;
+    font-size: 0.9rem;
+  }
+
+  .btn-lookup {
+    padding: 10px 24px;
+    background: #1B3A5C;
+    border: 1px solid #2E75B6;
+    border-radius: 8px;
+    color: #BDD7EE;
+    font-size: 0.9rem;
+    cursor: pointer;
+    font-weight: 600;
+    transition: background 0.2s;
+    white-space: nowrap;
+  }
+
+  .btn-lookup:hover { background: #2E75B6; color: #fff; }
+
+  /* ALERT BOXES */
+  .alert-hard {
+    background: #3a0a0a;
+    border: 2px solid #991B1B;
+    border-radius: 12px;
+    padding: 1.5rem;
+    margin-top: 1.5rem;
+  }
+
+  .alert-soft {
+    background: #3a2a0a;
+    border: 2px solid #854F0B;
+    border-radius: 12px;
+    padding: 1.5rem;
+    margin-top: 1.5rem;
+  }
+
+  .alert-title {
+    font-size: 1.1rem;
+    font-weight: 700;
+    margin-bottom: 0.75rem;
+  }
+
+  .alert-hard .alert-title { color: #fca5a5; }
+  .alert-soft .alert-title { color: #fbbf24; }
+
+  .alert-message {
+    font-size: 0.9rem;
+    line-height: 1.6;
+    margin-bottom: 1rem;
+  }
+
+  .alert-hard .alert-message { color: #fecaca; }
+  .alert-soft .alert-message { color: #fde68a; }
+
+  .alert-meta {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0.5rem;
+    margin-top: 1rem;
+    padding-top: 1rem;
+    border-top: 1px solid rgba(255,255,255,0.1);
+  }
+
+  .meta-item { font-size: 0.8rem; }
+  .meta-item span { color: #94a3b8; display: block; }
+  .meta-item strong { color: #e2e8f0; }
+
+  .pgx-result {
+    background: #1a1f2e;
+    border-radius: 12px;
+    padding: 1.25rem;
+    border: 1px solid #2d3748;
+    margin-top: 1rem;
+  }
+
+  .pgx-result h3 { color: #BDD7EE; margin-bottom: 0.75rem; font-size: 1rem; }
+
+  .cpic-badge {
+    display: inline-block;
+    padding: 3px 10px;
+    background: #1a3a2a;
+    color: #86efac;
+    border-radius: 20px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    border: 1px solid #166534;
+    margin-bottom: 0.75rem;
+  }
+
+  /* SPEC LIBRARY */
+  .spec-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+    gap: 1rem;
+  }
+
+  .spec-card {
+    background: #1a1f2e;
+    border-radius: 12px;
+    padding: 1.25rem;
+    border: 1px solid #2d3748;
+    transition: border-color 0.2s;
+  }
+
+  .spec-card:hover { border-color: #2E75B6; }
+
+  .spec-id {
+    font-size: 0.75rem;
+    color: #2E75B6;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    margin-bottom: 6px;
+  }
+
+  .spec-title { font-size: 0.95rem; font-weight: 600; color: #e2e8f0; margin-bottom: 8px; }
+
+  .spec-meta { font-size: 0.8rem; color: #64748b; line-height: 1.6; }
+
+  .spec-alert-type {
+    display: inline-block;
+    padding: 2px 8px;
+    border-radius: 4px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    margin-top: 8px;
+  }
+
+  .hard-stop { background: #3a0a0a; color: #fca5a5; border: 1px solid #991B1B; }
+  .soft-warn { background: #3a2a0a; color: #fbbf24; border: 1px solid #854F0B; }
+
+  .no-result {
+    text-align: center;
+    color: #64748b;
+    padding: 3rem;
+    font-size: 0.9rem;
+  }
+
+  footer {
+    text-align: center;
+    padding: 2rem;
+    color: #475569;
+    font-size: 0.8rem;
+    border-top: 1px solid #2d3748;
+    margin-top: 3rem;
+  }
+
+  footer a { color: #2E75B6; text-decoration: none; }
+
+  @media (max-width: 600px) {
+    .form-row { grid-template-columns: 1fr; }
+    header h1 { font-size: 1.5rem; }
+    nav button { padding: 0.75rem 1rem; font-size: 0.8rem; }
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <h1>From the Big Bang to the Bedside</h1>
+  <p>A transdisciplinary pharmacogenomics platform tracing stellar nucleosynthesis to Epic Willow clinical decision support</p>
+  <div class="badges">
+    <span class="badge badge-blue">Azure Cosmos DB</span>
+    <span class="badge badge-purple">C# .NET SDK</span>
+    <span class="badge badge-red">Epic Willow Analyst</span>
+    <span class="badge badge-green">CPIC Level A</span>
+  </div>
+</header>
+
+<nav>
+  <button class="active" onclick="showPanel('chain', this)">The Chain</button>
+  <button onclick="showPanel('pgx', this)">PGx Lookup</button>
+  <button onclick="showPanel('specs', this)">Functional Specs</button>
+</nav>
+
+<div id="chain" class="panel active">
+  <p class="section-title">From the Big Bang to the Bedside — Click any layer to load live data from Azure Cosmos DB</p>
+  <div class="chain" id="chain-container">
+
+    <div class="layer-card l1" onclick="toggleLayer(this, 'cosmic-origins', 'element')">
+      <div class="layer-num">Layer 1 — Cosmic Origins</div>
+      <div class="layer-title">Big Bang → Stellar Nucleosynthesis</div>
+      <div class="layer-sub">Newton's gravity collapses stars → fusion forges C, N, O, P, S</div>
+      <div class="layer-data" id="data-cosmic-origins">
+        <div class="loading">Loading from Cosmos DB...</div>
+      </div>
+    </div>
+
+    <div class="arrow"></div>
+
+    <div class="layer-card l2" onclick="toggleLayer(this, 'molecular-assembly', 'molecule')">
+      <div class="layer-num">Layer 2 — Molecular Assembly</div>
+      <div class="layer-title">Elements → Nucleotides → DNA Double Helix</div>
+      <div class="layer-sub">Kepler's precision — A-T and G-C base pairing follows exact mathematical rules</div>
+      <div class="layer-data" id="data-molecular-assembly">
+        <div class="loading">Loading from Cosmos DB...</div>
+      </div>
+    </div>
+
+    <div class="arrow"></div>
+
+    <div class="layer-card l3" onclick="toggleLayer(this, 'genomic-variants', 'gene')">
+      <div class="layer-num">Layer 3 — Genomic Variants</div>
+      <div class="layer-title">CYP2D6 · CYP2C19 · TPMT · DPYD</div>
+      <div class="layer-sub">Russell's precision — Poor Metabolizer means zero enzyme function, not "slow"</div>
+      <div class="layer-data" id="data-genomic-variants">
+        <div class="loading">Loading from Cosmos DB...</div>
+      </div>
+    </div>
+
+    <div class="arrow"></div>
+
+    <div class="layer-card l4" onclick="toggleLayer(this, 'pgx-interactions', 'drug')">
+      <div class="layer-num">Layer 4 — Pharmacogenomics</div>
+      <div class="layer-title">Drug-Gene Interactions · CPIC Level A</div>
+      <div class="layer-sub">Codeine · Mercaptopurine · Clopidogrel · Fluorouracil</div>
+      <div class="layer-data" id="data-pgx-interactions">
+        <div class="loading">Loading from Cosmos DB...</div>
+      </div>
+    </div>
+
+    <div class="arrow"></div>
+
+    <div class="layer-card l5" onclick="toggleLayer(this, 'clinical-alerts', 'alertType')">
+      <div class="layer-num">Layer 5 — Clinical Safety Alert</div>
+      <div class="layer-title">Simulated Epic Willow CDS</div>
+      <div class="layer-sub">Hard stop · Soft warning · Functional specification documents</div>
+      <div class="layer-data" id="data-clinical-alerts">
+        <div class="loading">Loading from Cosmos DB...</div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<div id="pgx" class="panel">
+  <p class="section-title">Pharmacogenomics Drug-Gene Interaction Lookup</p>
+  <div class="lookup-form">
+    <div class="form-row">
+      <div class="form-group">
+        <label>Gene</label>
+        <select id="sel-gene">
+          <option value="">Select gene...</option>
+          <option value="CYP2D6">CYP2D6</option>
+          <option value="CYP2C19">CYP2C19</option>
+          <option value="TPMT">TPMT</option>
+          <option value="DPYD">DPYD</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label>Drug</label>
+        <select id="sel-drug">
+          <option value="">Select drug...</option>
+          <option value="Codeine">Codeine</option>
+          <option value="Mercaptopurine">Mercaptopurine</option>
+          <option value="Clopidogrel">Clopidogrel</option>
+          <option value="Fluorouracil (5-FU)">Fluorouracil (5-FU)</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label>Phenotype</label>
+        <select id="sel-phenotype">
+          <option value="">Select phenotype...</option>
+          <option value="Poor Metabolizer">Poor Metabolizer</option>
+          <option value="Ultra-Rapid Metabolizer">Ultra-Rapid Metabolizer</option>
+        </select>
+      </div>
+      <button class="btn-lookup" onclick="lookupAlert()">Look Up Alert</button>
+    </div>
+  </div>
+  <div id="pgx-result-container"></div>
+</div>
+
+<div id="specs" class="panel">
+  <p class="section-title">Epic Willow Functional Specification Library</p>
+  <div class="spec-grid">
+
+    <div class="spec-card">
+      <div class="spec-id">FS-PGX-001</div>
+      <div class="spec-title">CYP2D6 Poor Metabolizer — Codeine Hard Stop</div>
+      <div class="spec-meta">
+        Drug: Codeine &nbsp;|&nbsp; Gene: CYP2D6<br>
+        Phenotype: Poor Metabolizer<br>
+        CPIC: Level A — Contraindicated<br>
+        Module: Willow Inpatient / Ambulatory
+      </div>
+      <span class="spec-alert-type hard-stop">HARD STOP</span>
+    </div>
+
+    <div class="spec-card">
+      <div class="spec-id">FS-PGX-002</div>
+      <div class="spec-title">CYP2D6 Ultra-Rapid Metabolizer — Codeine Hard Stop</div>
+      <div class="spec-meta">
+        Drug: Codeine &nbsp;|&nbsp; Gene: CYP2D6<br>
+        Phenotype: Ultra-Rapid Metabolizer<br>
+        CPIC: Level A — Contraindicated<br>
+        Module: Willow Inpatient / Ambulatory
+      </div>
+      <span class="spec-alert-type hard-stop">HARD STOP</span>
+    </div>
+
+    <div class="spec-card">
+      <div class="spec-id">FS-PGX-003</div>
+      <div class="spec-title">TPMT Poor Metabolizer — Mercaptopurine Dose Reduction</div>
+      <div class="spec-meta">
+        Drug: Mercaptopurine &nbsp;|&nbsp; Gene: TPMT<br>
+        Phenotype: Poor Metabolizer<br>
+        CPIC: Level A — Reduce dose 90%<br>
+        Module: Willow Inpatient / Beacon Oncology
+      </div>
+      <span class="spec-alert-type hard-stop">HARD STOP + CO-SIGN</span>
+    </div>
+
+    <div class="spec-card">
+      <div class="spec-id">FS-PGX-004</div>
+      <div class="spec-title">CYP2C19 Poor Metabolizer — Clopidogrel Soft Warning</div>
+      <div class="spec-meta">
+        Drug: Clopidogrel &nbsp;|&nbsp; Gene: CYP2C19<br>
+        Phenotype: Poor Metabolizer<br>
+        CPIC: Level A — Select alternative<br>
+        Module: Willow Inpatient / Ambulatory
+      </div>
+      <span class="spec-alert-type soft-warn">SOFT WARNING</span>
+    </div>
+
+    <div class="spec-card">
+      <div class="spec-id">FS-PGX-005</div>
+      <div class="spec-title">DPYD Poor Metabolizer — Fluorouracil Dose Reduction</div>
+      <div class="spec-meta">
+        Drug: Fluorouracil (5-FU) &nbsp;|&nbsp; Gene: DPYD<br>
+        Phenotype: Poor Metabolizer<br>
+        CPIC: Level A — Reduce dose 50%<br>
+        Module: Willow Inpatient / Beacon Oncology
+      </div>
+      <span class="spec-alert-type hard-stop">HARD STOP + CO-SIGN</span>
+    </div>
+
+  </div>
+</div>
+
+<footer>
+  Built by <a href="https://github.com/IT-Professional-Kristina" target="_blank">Kristina Ankrah</a> &nbsp;|&nbsp;
+  <a href="https://github.com/IT-Professional-Kristina/bigbang-bedside" target="_blank">GitHub Repository</a> &nbsp;|&nbsp;
+  Azure Cosmos DB · C# .NET SDK · Epic Willow Functional Specifications · CPIC Level A
+</footer>
+
+<script>
+const API = 'https://func-bigbang-bedside-dhhhetb0hkhqa2bs.centralus-01.azurewebsites.net/api';
+
+function showPanel(id, btn) {
+  document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('nav button').forEach(b => b.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  btn.classList.add('active');
+}
+
+const loadedLayers = {};
+
+async function toggleLayer(card, container, keyField) {
+  const dataDiv = document.getElementById('data-' + container);
+  if (dataDiv.classList.contains('open')) {
+    dataDiv.classList.remove('open');
+    return;
+  }
+  dataDiv.classList.add('open');
+  if (loadedLayers[container]) return;
+  loadedLayers[container] = true;
+
+  try {
+    let url = API + '/Get' + container.split('-').map(w => w[0].toUpperCase() + w.slice(1)).join('');
+    if (container === 'cosmic-origins') url = API + '/GetCosmicOrigins';
+    if (container === 'molecular-assembly') url = API + '/GetCosmicOrigins';
+    if (container === 'genomic-variants') url = API + '/GetGenomicVariants';
+    if (container === 'pgx-interactions') url = API + '/GetPgxInteraction';
+    if (container === 'clinical-alerts') url = API + '/GetClinicalAlert';
+
+    const res = await fetch(url);
+    const data = await res.json();
+
+    if (container === 'molecular-assembly') {
+      const r2 = await fetch(API + '/GetCosmicOrigins');
+      const d2 = await r2.json();
+      renderLayerData(dataDiv, d2, 'element');
+      return;
+    }
+
+    renderLayerData(dataDiv, data, keyField);
+  } catch (e) {
+    dataDiv.innerHTML = '<div class="loading">Error loading data: ' + e.message + '</div>';
+  }
+}
+
+function renderLayerData(div, data, keyField) {
+  if (!data || data.length === 0) {
+    div.innerHTML = '<div class="loading">No data found</div>';
+    return;
+  }
+  div.innerHTML = data.map(item => {
+    const key = item[keyField] || item.id;
+    const fields = Object.entries(item)
+      .filter(([k]) => !['id','_rid','_self','_etag','_attachments','_ts'].includes(k))
+      .slice(0, 4);
+    return `<div class="data-item">
+      <strong>${key}</strong>
+      ${fields.map(([k,v]) => `<div><span style="color:#94a3b8">${k}:</span> ${Array.isArray(v) ? v.join(', ') : v}</div>`).join('')}
+    </div>`;
+  }).join('');
+}
+
+async function lookupAlert() {
+  const gene = document.getElementById('sel-gene').value;
+  const drug = document.getElementById('sel-drug').value;
+  const phenotype = document.getElementById('sel-phenotype').value;
+  const container = document.getElementById('pgx-result-container');
+
+  if (!gene && !drug) {
+    container.innerHTML = '<div class="no-result">Please select at least a gene or drug to look up.</div>';
+    return;
+  }
+
+  container.innerHTML = '<div class="loading">Querying Cosmos DB...</div>';
+
+  try {
+    let params = new URLSearchParams();
+    if (drug) params.append('drug', drug);
+    if (gene) params.append('gene', gene);
+    if (phenotype) params.append('phenotype', phenotype);
+
+    const [pgxRes, alertRes] = await Promise.all([
+      fetch(API + '/GetPgxInteraction?' + params),
+      fetch(API + '/GetClinicalAlert?' + params)
+    ]);
+
+    const pgxData = await pgxRes.json();
+    const alertData = await alertRes.json();
+
+    let html = '';
+
+    if (pgxData && pgxData.length > 0) {
+      const pgx = pgxData[0];
+      html += `<div class="pgx-result">
+        <h3>${pgx.drug} + ${pgx.gene}</h3>
+        <span class="cpic-badge">${pgx.cpicGuideline}</span>
+        <div style="font-size:0.9rem;color:#e2e8f0;margin-bottom:0.5rem">${pgx.recommendation}</div>
+        ${pgx.newtonParallel ? `<div style="font-size:0.8rem;color:#64748b;font-style:italic;margin-top:0.5rem">Physics parallel: ${pgx.newtonParallel}</div>` : ''}
+      </div>`;
+    }
+
+    if (alertData && alertData.length > 0) {
+      const alert = alertData[0];
+      const isHard = alert.alertType === 'HARD_STOP';
+      html += `<div class="${isHard ? 'alert-hard' : 'alert-soft'}">
+        <div class="alert-title">${isHard ? '🛑 HARD STOP' : '⚠️ SOFT WARNING'} — ${alert.alertTitle}</div>
+        <div class="alert-message">${alert.alertMessage}</div>
+        <div class="alert-meta">
+          <div class="meta-item"><span>Override permitted</span><strong>${alert.overrideAllowed ? 'Yes' : 'No'}</strong></div>
+          <div class="meta-item"><span>Willow analog</span><strong>${alert.willoyCdsAnalog}</strong></div>
+          <div class="meta-item"><span>Functional spec</span><strong>${alert.functionalSpecRef}</strong></div>
+          <div class="meta-item"><span>Clinical source</span><strong>${alert.clinicalSource}</strong></div>
+        </div>
+      </div>`;
+    }
+
+    if (!html) {
+      html = '<div class="no-result">No interactions found for this combination. Try a different gene/drug pair.</div>';
+    }
+
+    container.innerHTML = html;
+  } catch (e) {
+    container.innerHTML = '<div class="no-result">Error: ' + e.message + '</div>';
+  }
+}
+</script>
+</body>
+</html>
