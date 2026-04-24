@@ -1,0 +1,19 @@
+ # User secrets and credentials
+secrets.json
+appsettings.Development.json
+
+# .NET build output
+bin/
+obj/
+*.user
+
+# Node modules
+node_modules/
+package-lock.json
+
+# VS Code
+.vscode/
+
+# Windows
+Thumbs.db
+desktop.ini
