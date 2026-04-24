@@ -6,7 +6,17 @@
 [![Epic](https://img.shields.io/badge/Epic-Willow%20Analyst-E31837)](https://www.epic.com)
 [![CPIC](https://img.shields.io/badge/Guidelines-CPIC%20Level%20A-2E7D32)](https://cpicpgx.org)
 
----
+## Live Demo
+
+**[From the Big Bang to the Bedside — Live Dashboard](https://delightful-sky-057763d10.7.azurestaticapps.net)**
+
+| Panel | What it shows |
+|-------|---------------|
+| The Chain | Five layers from stellar nucleosynthesis to clinical pharmacy — click any layer to load live data from Azure Cosmos DB |
+| PGx Lookup | Select a gene, drug, and phenotype — fires a simulated Epic Willow hard stop or soft warning alert pulled live from Cosmos DB |
+| Functional Specs | Complete Epic Willow analyst specification library — FS-PGX-001 through FS-PGX-005 |
+
+------
 
 ## What This Project Is
 
